@@ -26,14 +26,13 @@ class RadonForward(Function):
         return grad, None, None, None
 
     @staticmethod
-    def jvp(ctx, grad_x):
-        if not grad_x.is_contiguous():
-            grad_x = grad_x.contiguous()
+    def jvp(ctx, x, angles, tex_cache, rays_cfg):
+        sinogram = torch_radon_cuda.forward(x, angles, tex_cache, rays_cfg)
+        ctx.tex_cache = tex_cache
+        ctx.rays_cfg = rays_cfg
+        ctx.save_for_backward(angles)
 
-        angles, = ctx.saved_variables
-        grad = torch_radon_cuda.backward(grad_x, angles, ctx.tex_cache, ctx.rays_cfg)
-        return grad
-
+        return sinogram, None, None, None
 
 class RadonBackprojection(Function):
     @staticmethod
