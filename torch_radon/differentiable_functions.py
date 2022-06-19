@@ -26,12 +26,9 @@ class RadonForward(Function):
         return grad, None, None, None
 
     @staticmethod
-    def jvp(ctx, x, angles, tex_cache, rays_cfg):
-        sinogram = torch_radon_cuda.forward(x, angles, tex_cache, rays_cfg)
-        ctx.tex_cache = tex_cache
-        ctx.rays_cfg = rays_cfg
-        ctx.save_for_backward(angles)
-
+    def jvp(ctx, x, arg1, arg2, arg3):
+	angles, = ctx.saved_variables
+        sinogram = torch_radon_cuda.forward(x, angles, ctx.tex_cache, ctx.rays_cfg)
         return sinogram, None, None, None
 
 class RadonBackprojection(Function):
